@@ -1,0 +1,12 @@
+{
+  "name": "python-upgrade-runner",
+  "description": "Runs a Python runtime or major dependency upgrade in verified stages: scans for standard-library modules and APIs removed at the target version, puts codemods before hand edits, and records each stage's test result in a ledger.",
+  "author": {
+    "name": "Muhammad Waseem Panhwar",
+    "url": "https://github.com/panhwerwaseem"
+  },
+  "homepage": "https://github.com/panhwerwaseem/python-upgrade-runner",
+  "repository": "https://github.com/panhwerwaseem/python-upgrade-runner",
+  "license": "MIT",
+  "keywords": ["python", "upgrade", "migration", "deprecation", "agent-skills"]
+}

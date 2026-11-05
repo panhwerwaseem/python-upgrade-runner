@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "stages": [
+    {
+      "id": 1,
+      "name": "baseline",
+      "python": "3.9",
+      "note": "billing-worker as deployed today",
+      "skip_reason": "",
+      "opened_at": "2026-10-26T09:02:11Z",
+      "verifications": [
+        {
+          "command": ["python3.9", "-m", "unittest", "discover", "-s", "tests"],
+          "exit_code": 0,
+          "passed": true,
+          "duration_s": 0.4,
+          "at": "2026-10-26T09:03:40Z",
+          "output_tail": [
+            "----------------------------------------------------------------------",
+            "Ran 2 tests in 0.001s",
+            "OK"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "python 3.10",
+      "python": "3.10",
+      "note": "CI image and tox env moved to 3.10",
+      "skip_reason": "",
+      "opened_at": "2026-10-27T10:15:02Z",
+      "verifications": [
+        {
+          "command": ["python3.10", "-m", "unittest", "discover", "-s", "tests"],
+          "exit_code": 0,
+          "passed": true,
+          "duration_s": 0.4,
+          "at": "2026-10-27T10:21:55Z",
+          "output_tail": [
+            "----------------------------------------------------------------------",
+            "Ran 2 tests in 0.001s",
+            "OK"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "python 3.11",
+      "python": "3.11",
+      "note": "CI image and tox env moved to 3.11",
+      "skip_reason": "",
+      "opened_at": "2026-10-29T14:40:36Z",
+      "verifications": [
+        {
+          "command": ["python3.11", "-m", "unittest", "discover", "-s", "tests"],
+          "exit_code": 1,
+          "passed": false,
+          "duration_s": 0.5,
+          "at": "2026-10-29T14:44:09Z",
+          "output_tail": [
+            "ERROR: test_arguments_are_listed_in_order (test_signature.SignatureTests.test_arguments_are_listed_in_order)",
+            "  File \"billing/signature.py\", line 6, in handler_arguments",
+            "    return list(inspect.getargspec(handler).args)",
+            "AttributeError: module 'inspect' has no attribute 'getargspec'",
+            "ERROR: test_describe_formats_name_and_arguments (test_signature.SignatureTests.test_describe_formats_name_and_arguments)",
+            "  File \"billing/signature.py\", line 6, in handler_arguments",
+            "    return list(inspect.getargspec(handler).args)",
+            "AttributeError: module 'inspect' has no attribute 'getargspec'",
+            "----------------------------------------------------------------------",
+            "Ran 2 tests in 0.002s",
+            "FAILED (errors=2)"
+          ]
+        }
+      ]
+    }
+  ]
+}

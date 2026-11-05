@@ -1,0 +1,15 @@
+{
+  "name": "panhwerwaseem-python-upgrade-runner",
+  "owner": {
+    "name": "Muhammad Waseem Panhwar",
+    "url": "https://github.com/panhwerwaseem"
+  },
+  "description": "Single-skill marketplace for python-upgrade-runner.",
+  "plugins": [
+    {
+      "name": "python-upgrade-runner",
+      "source": "./",
+      "description": "Runs a Python runtime or major dependency upgrade in verified stages: scans for standard-library modules and APIs removed at the target version, puts codemods before hand edits, and records each stage's test result in a ledger."
+    }
+  ]
+}

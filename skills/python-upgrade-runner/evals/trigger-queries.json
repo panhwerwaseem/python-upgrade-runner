@@ -1,0 +1,27 @@
+{
+  "skill_name": "python-upgrade-runner",
+  "should_trigger": [
+    "upgrade this service from Python 3.9 to 3.12",
+    "our Docker image moved to python:3.13 and now we get ModuleNotFoundError: No module named 'cgi'",
+    "is this repo ready for Python 3.13? what will break?",
+    "CI on 3.12 fails with No module named 'distutils', fix it properly",
+    "we need to drop Python 3.8 support and move everything to 3.11, where do we start",
+    "the test run is full of DeprecationWarning lines, clean them up before we bump the Python version",
+    "migrate the codebase off imp and asyncore so we can get onto a supported Python",
+    "bump python version in pyproject and CI from 3.10 to 3.13 and make the tests pass",
+    "plan and run the Django 3.2 to 4.2 upgrade in stages, tests must stay green after each step",
+    "3.9 is end of life, move the worker to a newer Python without breaking prod"
+  ],
+  "should_not_trigger": [
+    "port this Python 2 script to Python 3",
+    "bump requests from 2.31 to 2.32 for the security fix",
+    "rewrite this module to use dataclasses and type hints",
+    "which Python version should I pick for a new project?",
+    "pip install fails with a dependency resolver conflict, help me fix my requirements.txt",
+    "install Python 3.12 with pyenv on my Mac",
+    "add a Python 3.13 job to the GitHub Actions matrix",
+    "upgrade our Node service from 18 to 22",
+    "why is this code slower on Python 3.12 than on 3.11",
+    "explain what PEP 594 is"
+  ]
+}

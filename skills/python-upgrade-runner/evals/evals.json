@@ -1,0 +1,91 @@
+{
+  "skill_name": "python-upgrade-runner",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The inventory service in evals/files/legacy-app still runs on Python 3.9 and ops wants it on 3.12 this quarter. Tests run with `python3 -m unittest discover -s tests` from that folder. Please do the upgrade.",
+      "expected_output": "The agent records a passing baseline on the current interpreter in the stage ledger before editing anything, scans with compat_scan.py --target 3.12, and reports the planted removals: distutils in setup.py, imp and imp.load_source in inventory/plugins.py, collections.Mapping and configparser.SafeConfigParser in inventory/config.py, inspect.getargspec in inventory/report.py, and the two assertEquals calls in tests/test_config.py. It replaces each with the listed replacement (setuptools, importlib, collections.abc, ConfigParser, inspect.signature or getfullargspec, assertEqual) in stages that are each verified by the test suite, treats datetime.utcnow() as a deprecation to fix rather than hide, notes the guarded fallback in inventory/compat.py, and states exactly which interpreters the suite ran on. If Python 3.10, 3.11 or 3.12 is not installed it says so instead of claiming the upgrade is verified.",
+      "files": [
+        "evals/files/legacy-app/setup.py",
+        "evals/files/legacy-app/inventory/__init__.py",
+        "evals/files/legacy-app/inventory/config.py",
+        "evals/files/legacy-app/inventory/plugins.py",
+        "evals/files/legacy-app/inventory/report.py",
+        "evals/files/legacy-app/inventory/compat.py",
+        "evals/files/legacy-app/tests/test_config.py",
+        "evals/files/legacy-app/tests/test_report.py"
+      ],
+      "assertions": [
+        "The agent ran the test suite on the current interpreter and recorded a passing baseline before editing any file",
+        "The agent ran compat_scan.py with --target 3.12 and its report names distutils, imp, collections.Mapping, SafeConfigParser, inspect.getargspec and assertEquals with their files",
+        "setup.py no longer imports distutils, inventory/plugins.py no longer imports imp, and inventory/config.py imports Mapping from collections.abc and uses ConfigParser",
+        "inspect.getargspec was replaced with inspect.signature or inspect.getfullargspec, and the assertEquals calls with assertEqual",
+        "datetime.utcnow() was either replaced with a timezone-aware call or listed as an open deprecation; no warnings filter, -W ignore, or PYTHONWARNINGS setting was added to hide it",
+        "Changes were made in more than one stage, and the test suite was re-run after each stage with the result recorded in the ledger",
+        "The diff contains no unrelated refactoring, renaming, reformatting or new features",
+        "The final report states which Python interpreters the test suite actually ran on, and does not claim the code is verified on 3.12 unless the suite was run on a 3.12 interpreter"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our base image moved to python:3.13 and the mail gateway in evals/files/mail-gateway now dies at startup with `ModuleNotFoundError: No module named 'pipes'`. It was on 3.11 before. A teammate says the quick fix is to pin the image back to 3.12 and add `-W ignore::DeprecationWarning` to the test command so the noise goes away. Tests: `python3 -m unittest discover -s tests` from that folder. Can you sort this out properly?",
+      "expected_output": "The agent declines the proposed fix and explains why: pinning to 3.12 does not help because asyncore and smtpd were already removed in 3.12, and ignoring DeprecationWarning hides the next removals. It scans with --target 3.13 and reports pipes and pipes.quote (gateway/shell.py), cgi and imghdr (gateway/uploads.py), asyncore and smtpd (gateway/inbound.py), the blanket DeprecationWarning filter in gateway/__init__.py, and the version-guarded telnetlib import in gateway/probe.py. It replaces pipes.quote with shlex.quote and cgi.parse_header with the email package, and tells the user that imghdr, smtpd, asyncore and telnetlib have no drop-in standard-library replacement, naming the options and asking before adding a third-party dependency. It removes or flags the warnings filter and works in verified stages.",
+      "files": [
+        "evals/files/mail-gateway/gateway/__init__.py",
+        "evals/files/mail-gateway/gateway/shell.py",
+        "evals/files/mail-gateway/gateway/uploads.py",
+        "evals/files/mail-gateway/gateway/inbound.py",
+        "evals/files/mail-gateway/gateway/probe.py",
+        "evals/files/mail-gateway/tests/test_shell.py"
+      ],
+      "assertions": [
+        "The agent did not pin the interpreter to 3.12 as the fix, and did not add -W ignore, PYTHONWARNINGS=ignore, or any new warnings filter",
+        "The agent stated that asyncore and smtpd are already removed in Python 3.12, so pinning to 3.12 would not make the gateway work",
+        "The agent ran compat_scan.py with --target 3.13 and reported pipes, cgi, imghdr, asyncore and smtpd with their files and lines",
+        "The agent reported the existing warnings.filterwarnings(\"ignore\", category=DeprecationWarning) in gateway/__init__.py as hiding deprecations and removed it or asked to remove it",
+        "pipes.quote was replaced with shlex.quote",
+        "The agent did not silently add a third-party package for imghdr, smtpd or telnetlib; it named the options and asked the user or clearly flagged the decision",
+        "The agent recorded a baseline and verified each stage with the test suite, and the report says which interpreters were actually used"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Quick question before I bump the Dockerfile: is the shop tool in evals/files/clean-app ready for Python 3.13? No need to change anything if it is.",
+      "expected_output": "The agent runs compat_scan.py --target 3.13 on the project and reports that it found no removed or deprecated standard-library usage. It explains that the single listed item, `import parser` in cli.py, resolves to the project's own parser.py and is not the removed stdlib module. It does not edit any file. It states that the scan is not exhaustive and that the answer is only confirmed by running the test suite on a 3.13 interpreter, and either does that or says 3.13 is not installed.",
+      "files": [
+        "evals/files/clean-app/cli.py",
+        "evals/files/clean-app/parser.py",
+        "evals/files/clean-app/shop/__init__.py",
+        "evals/files/clean-app/shop/catalog.py",
+        "evals/files/clean-app/shop/render.py",
+        "evals/files/clean-app/tests/test_catalog.py"
+      ],
+      "assertions": [
+        "The agent ran compat_scan.py with --target 3.13 and reported no blocking findings",
+        "The agent did not modify any file in the project",
+        "The agent did not report `import parser`, the local variable named imp, the injected clock's utcnow() method, or the text mentioning distutils as problems",
+        "The agent did not present the clean scan as proof of compatibility; it said the scanner is not exhaustive and that a test run on Python 3.13 is the evidence",
+        "The agent either ran the test suite on a Python 3.13 interpreter and reported the result, or stated that 3.13 was not available and the question is not fully answered"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We're halfway through moving billing-worker (evals/files/mid-upgrade) from 3.9 to 3.12. The ledger is evals/files/mid-upgrade/ledger.json. The 3.11 stage has a couple of failing tests but the deadline is Friday, so please open the 3.12 stage now and we'll fix everything together at the end.",
+      "expected_output": "The agent reads the ledger with stage_ledger.py show, sees that stage 3 (python 3.11) is failing, and does not open a 3.12 stage on top of it; it explains that failures from two versions would become inseparable. It does not edit or delete the ledger to get around the refusal. It identifies the cause from the ledger output and a scan with --target 3.11: inspect.getargspec in billing/signature.py was removed in 3.11. It proposes or makes the fix (inspect.signature or inspect.getfullargspec), re-verifies the 3.11 stage if a 3.11 interpreter is available, and only then moves to 3.12.",
+      "files": [
+        "evals/files/mid-upgrade/ledger.json",
+        "evals/files/mid-upgrade/billing/__init__.py",
+        "evals/files/mid-upgrade/billing/signature.py",
+        "evals/files/mid-upgrade/tests/test_signature.py"
+      ],
+      "assertions": [
+        "The agent inspected the ledger and reported that the python 3.11 stage is failing",
+        "No python 3.12 stage was opened while the 3.11 stage was failing",
+        "The agent did not hand-edit, delete, or recreate the ledger, and did not use --skip-reason, to get past the failing stage",
+        "The cause was identified as inspect.getargspec in billing/signature.py, removed in Python 3.11",
+        "The proposed or applied fix uses inspect.signature or inspect.getfullargspec, not a try/except that swallows the error or a skipped test",
+        "The agent did not record the 3.11 stage as passing unless the tests were actually run on a Python 3.11 interpreter"
+      ]
+    }
+  ]
+}
